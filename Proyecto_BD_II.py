@@ -125,7 +125,7 @@ def deleteclaseProc(IDClase):
         cnx.close()
         print("Clase eliminada")
 
-def insertClientProc(IDCliente, IDMembresia, nombre, apellidol, apellido2, correoElectronico, NumeroTelefono):
+#def insertClientProc(IDCliente, IDMembresia, nombre, apellidol, apellido2, correoElectronico, NumeroTelefono):
     try:
         cnx = mysql.connector.connect(**config)
     except mysql.connector.Error as err:
@@ -180,6 +180,32 @@ def deleteclientProc(IDCliente):
         cursorObject.close()
         cnx.close()
         print("Cliente eliminado")
+def insertClientProc(IDCliente, IDMembresia, nombre, apellidol, apellido2, correoElectronico, NumeroTelefono):
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        try:
+            cursorObject = cnx.cursor()
+            params = (IDCliente, IDMembresia, nombre, apellidol, apellido2, correoElectronico, NumeroTelefono)
+            cursorObject.callproc('InsertarCliente', params)
+            cnx.commit()
+            print("Cliente insertado")
+        except mysql.connector.errors.DatabaseError as err:
+            # Verifica si el mensaje de error contiene "El formato del correo electrónico no es válido."
+            if "El formato del correo electrónico no es válido." in str(err):
+                print("Error: El formato del correo electrónico no es válido.")
+            else:
+                print(f"Database error: {err}")
+        finally:
+            cursorObject.close()
+            cnx.close()
 
 
 def insertPFProc(IDPuesto, puesto):
@@ -714,6 +740,252 @@ def deleteInscriptionProc(codigoInscripcion):
         cnx.close()
         print("Inscripción eliminada")
 
+#/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+def execute_query(query):
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursor = cnx.cursor()
+        try:
+            cursor.execute(query)
+            cnx.commit()
+            print("Query executed successfully")
+        except mysql.connector.Error as err:
+            print("Error executing query:", err)
+        finally:
+            cursor.close()
+            cnx.close()
+
+
+def crear_trigger_verificar_stock_before_venta():
+    query = """
+        CREATE TRIGGER verificar_stock_before_venta
+        BEFORE INSERT ON Venta
+        FOR EACH ROW
+        BEGIN
+            DECLARE disponible INT;
+            
+            SELECT Stock INTO disponible
+            FROM Producto
+            WHERE IDProducto = NEW.IDProducto;
+            
+            IF disponible < NEW.Cantidad THEN
+                SIGNAL SQLSTATE '55000'
+                SET MESSAGE_TEXT = 'No hay suficiente stock disponible para realizar la venta';
+            END IF;
+        END;
+    """
+    execute_query(query)
+
+def crear_trigger_actualizar_stock_after_crear_venta():
+    query ="""
+        CREATE TRIGGER actualizar_stock_after_crear_venta
+        AFTER INSERT ON Venta
+        FOR EACH ROW
+        BEGIN
+            DECLARE cantidad_vendida INT;
+            SELECT NEW.Cantidad INTO cantidad_vendida;
+            
+        
+
+            UPDATE PRODUCTO
+            SET Stock = Stock - cantidad_vendida
+            WHERE IDProducto = NEW.IDProducto;
+        END;
+        """
+    execute_query(query) 
+
+def crear_trigger_actualizar_stock_after_eliminar_venta():
+       query = """
+        CREATE TRIGGER actualizar_stock_after_delete_venta
+        BEFORE DELETE ON Venta
+        FOR EACH ROW
+        BEGIN
+            DECLARE cantidad_devuelta INT;
+            -- Obtener la cantidad devuelta del producto
+            SELECT OLD.Cantidad INTO cantidad_devuelta
+            FROM Venta
+            WHERE NumeroTransaccion = OLD.NumeroTransaccion;
+            
+            -- Actualizar el stock del producto
+            UPDATE Producto
+            SET Stock = Stock + cantidad_devuelta
+            WHERE IDProducto = OLD.IDProducto;
+        END;
+        """
+       execute_query(query) 
+
+
+def crear_trigger_actualizar_monto_venta_despues_actualizacion():
+    query = """
+    CREATE TRIGGER actualizar_monto_venta_despues_actualizacion
+    BEFORE UPDATE ON Venta
+    FOR EACH ROW
+    BEGIN
+        -- Calcula el nuevo monto basado en la nueva cantidad de productos y el precio unitario
+        DECLARE nuevo_monto DECIMAL(9, 2);
+        SET nuevo_monto = NEW.cantidad * (SELECT costo FROM Producto WHERE IDProducto = NEW.IDProducto);
+        
+        -- Actualiza el monto en una variable local
+        SET NEW.monto = nuevo_monto;
+    END;
+    """
+    execute_query(query) 
+
+def crear_trigger_validar_correo_cliente_before_insert():
+    query = """
+    CREATE TRIGGER validar_correo_cliente_before_insert
+    BEFORE INSERT ON Cliente
+    FOR EACH ROW
+    BEGIN
+        IF NEW.correoElectronico NOT LIKE '%@%.%' THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El formato del correo electrónico no es válido.';
+        END IF;
+    END;
+    """
+    execute_query(query) 
+
+def crear_trigger_actualizar_correo_cliente():
+    query = """
+    CREATE TRIGGER crear_trigger_actualizar_correo_cliente
+    BEFORE UPDATE ON Cliente
+    FOR EACH ROW
+    BEGIN
+        IF NEW.correoElectronico NOT LIKE '%@%.%' THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El formato del correo electrónico no es válido.';
+        END IF;
+    END;
+    """
+    execute_query(query) 
+
+def crear_trigger_eliminar_cliente():
+    query = """  
+    CREATE TRIGGER before_delete_cliente
+    BEFORE DELETE ON Cliente
+    FOR EACH ROW
+    BEGIN
+        DECLARE inscripciones_count INT;
+
+        -- Contamos cuántas inscripciones tiene el cliente que se va a eliminar
+        SELECT COUNT(*) INTO inscripciones_count FROM Inscribirse WHERE IDCliente = OLD.IDCliente;
+
+        -- Si el cliente tiene inscripciones, evitamos la eliminación y mostramos un mensaje de error
+        IF inscripciones_count > 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede eliminar el cliente porque está inscrito en una o más clases.';
+        END IF;
+    END;
+    """
+    execute_query(query) 
+
+def crear_trigger_insertar_equipo():
+    query = """
+    CREATE TRIGGER before_insert_equipo
+    BEFORE INSERT ON Equipo
+    FOR EACH ROW
+    BEGIN
+        IF NEW.fechaAdquisicion IS NULL THEN
+            SET NEW.fechaAdquisicion = CURDATE();
+        END IF;
+    END;
+    """
+    execute_query(query) 
+
+def crear_trigger_eliminar_equipo():
+    query = """
+    CREATE TRIGGER before_delete_equipo
+    BEFORE DELETE ON Equipo
+    FOR EACH ROW
+    BEGIN
+        -- Verificamos si el equipo que se va a eliminar está marcado como activo
+        IF OLD.estado = 'D' THEN
+            -- Si el equipo está activo, generamos un error y evitamos la eliminación
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede eliminar un equipo disponible.';
+        END IF;
+    END;
+    """
+    execute_query(query)
+
+def crear_trigger_actualizar_equipo():
+    query = """
+    CREATE TRIGGER before_update_equipo
+    BEFORE UPDATE ON Equipo
+    FOR EACH ROW
+    BEGIN
+        -- Verificamos si la fecha de adquisición está siendo modificada
+        IF OLD.fechaAdquisicion <> NEW.fechaAdquisicion THEN
+            -- Si la fecha de adquisición está cambiando, generamos un error y revertimos la actualización
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede modificar la fecha de adquisición de un equipo.';
+        END IF;
+    END;
+    """
+    execute_query(query) 
+
+def crear_trigger_eliminar_gim():
+    query = """
+    CREATE TRIGGER before_delete_gimn
+    BEFORE DELETE ON Gimnasio
+    FOR EACH ROW
+    BEGIN
+        DECLARE trabajos_count INT;
+
+        -- Contamos cuántos registros existen en la tabla Trabaja que hacen referencia al gimnasio que se va a eliminar
+        SELECT COUNT(*) INTO trabajos_count FROM Trabaja WHERE IDGimnasio = OLD.IDGimnasio;
+
+        -- Si existen registros en la tabla Trabaja que dependen del gimnasio, evitamos la eliminación y mostramos un mensaje de error
+        IF trabajos_count > 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede eliminar el gimnasio porque hay funcionarios asignados a él.';
+        END IF;
+    END;
+    """
+    execute_query(query) 
+
+def crear_trigger_insertar_gim():
+    query = """
+    CREATE TRIGGER before_insert_update_gimnasio
+    BEFORE INSERT ON Gimnasio
+    FOR EACH ROW
+    BEGIN
+        -- Verifica si la ciudad especificada existe en la tabla Ciudad
+        DECLARE ciudad_count INT;
+        SELECT COUNT(*) INTO ciudad_count FROM Ciudad WHERE IDCiudad = NEW.IDCiudad;
+        IF ciudad_count = 0 THEN
+            -- Si la ciudad no existe, genera un error y cancela la inserción/actualización
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La ciudad especificada no existe en la tabla Ciudad.';
+        END IF;
+    END;
+    """
+    execute_query(query) 
+
+def crear_trigger_actualizar_gim():
+    query = """
+    CREATE TRIGGER before_update_gimnasio
+    BEFORE UPDATE ON Gimnasio
+    FOR EACH ROW
+    BEGIN
+        -- Verifica si el ID de la ciudad está siendo modificado
+        IF OLD.IDCiudad <> NEW.IDCiudad THEN
+            -- Si la ciudad está cambiando, genera un error y revierte la actualización
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'No se puede modificar la ciudad de un gimnasio.';
+        END IF;
+    END;
+    """
+    execute_query(query) 
+
+
+
+
+
+
+
+
 def menu():
     print("1. Insertar membresia")
     print("2. Actualizar membresia")
@@ -946,3 +1218,20 @@ def main():
         opcion = menu()
     print("Saliendo...")
 main()
+
+
+crear_trigger_verificar_stock_before_venta()
+crear_trigger_actualizar_stock_after_eliminar_venta()
+crear_trigger_actualizar_stock_after_crear_venta()
+crear_trigger_actualizar_monto_venta_despues_actualizacion()
+
+crear_trigger_validar_correo_cliente_before_insert()  
+crear_trigger_actualizar_correo_cliente()
+crear_trigger_insertar_equipo()
+crear_trigger_eliminar_gim()
+crear_trigger_eliminar_cliente()
+
+crear_trigger_eliminar_equipo()
+crear_trigger_actualizar_equipo()
+crear_trigger_insertar_gim()
+crear_trigger_actualizar_gim()
