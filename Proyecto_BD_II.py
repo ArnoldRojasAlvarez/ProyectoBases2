@@ -180,6 +180,7 @@ def deleteclientProc(IDCliente):
         cursorObject.close()
         cnx.close()
         print("Cliente eliminado")
+        
 def insertClientProc(IDCliente, IDMembresia, nombre, apellidol, apellido2, correoElectronico, NumeroTelefono):
     try:
         cnx = mysql.connector.connect(**config)
@@ -979,12 +980,287 @@ def crear_trigger_actualizar_gim():
     """
     execute_query(query) 
 
+def crearVistaInformacionFuncionarios():
+    query = """
+    CREATE VIEW Vista_Funcionario_Puesto_Gimnasio AS
+    SELECT 
+        f.IDFuncionario,
+        f.nombre AS NombreFuncionario,
+        f.apellidol AS Apellido1Funcionario,
+        f.apellido2 AS Apellido2Funcionario,
+        f.NumeroTelefono AS TelefonoFuncionario,
+        p.puesto AS NombrePuesto,
+        g.nombre AS NombreGimnasio,
+        g.direccionExacta AS DireccionGimnasio,
+        g.NumeroTelefono AS TelefonoGimnasio
+    FROM Funcionario f 
+    JOIN PuestoFuncionario p ON f.puesto = p.IDPuesto
+    JOIN Trabaja t ON f.IDFuncionario = t.IDFuncionario
+    JOIN Gimnasio g ON t.IDGimnasio = g.IDGimnasio;"""
+
+    execute_query(query) 
+
+def crearVistaInformacionFuncionarios():
+    query = """
+    CREATE VIEW Vista_Funcionario_Puesto_Gimnasio AS
+    SELECT 
+        f.IDFuncionario,
+        f.nombre AS NombreFuncionario,
+        f.apellidol AS Apellido1Funcionario,
+        f.apellido2 AS Apellido2Funcionario,
+        f.NumeroTelefono AS TelefonoFuncionario,
+        p.puesto AS NombrePuesto,
+        g.nombre AS NombreGimnasio,
+        g.direccionExacta AS DireccionGimnasio,
+        g.NumeroTelefono AS TelefonoGimnasio
+    FROM Funcionario f 
+    JOIN PuestoFuncionario p ON f.puesto = p.IDPuesto
+    JOIN Trabaja t ON f.IDFuncionario = t.IDFuncionario
+    JOIN Gimnasio g ON t.IDGimnasio = g.IDGimnasio;"""
+
+    execute_query(query) 
+
+def crearVistaInformacionCliente():
+    query = """
+    CREATE VIEW Vista_Cliente_Membresia AS
+    SELECT 
+    c.IDCliente,
+    c.nombre AS NombreCliente,
+    c.apellidol AS Apellido1Cliente,
+    c.apellido2 AS Apellido2Cliente,
+    c.correoElectronico AS CorreoCliente,
+    c.NumeroTelefono AS TelefonoCliente,
+    m.tipo AS TipoMembresia,
+    m.costo AS CostoMembresia,
+    m.estado AS EstadoMembresia
+    FROM Cliente c
+    JOIN Membresia m ON c.IDMembresia = m.IDMembresia;"""
 
 
+    execute_query(query) 
+
+def crearVistaClaseInstructor():
+    query = """
+    CREATE VIEW Vista_Clases_Instructores AS
+    SELECT 
+    cl.IDClase,
+    cl.nombre AS NombreClase,
+    cl.capacidadMaxima AS CapacidadMaximaClase,
+    f.nombre AS NombreInstructor,
+    f.apellidol AS Apellido1Instructor,
+    f.apellido2 AS Apellido2Instructor,
+    g.nombre AS NombreGimnasio,
+    g.direccionExacta AS DireccionGimnasio
+    FROM Clase cl
+    JOIN Funcionario f ON cl.IDFuncionario = f.IDFuncionario
+    JOIN Trabaja t ON f.IDFuncionario = t.IDFuncionario
+    JOIN Gimnasio g ON t.IDGimnasio = g.IDGimnasio;
+    """
+    execute_query(query) 
+
+def crearVistaVentaProductos():
+    query = """
+    CREATE VIEW Vista_Ventas_Productos AS
+    SELECT 
+    v.NumeroTransaccion,
+    v.fechaAdquisicion,
+    v.monto,
+    v.cantidad,
+    c.IDCliente,
+    c.nombre AS NombreCliente,
+    c.apellidol AS Apellido1Cliente,
+    c.apellido2 AS Apellido2Cliente,
+    p.IDProducto,
+    p.nombre AS NombreProducto,
+    p.costo AS CostoProducto
+    FROM Venta v
+    JOIN Cliente c ON v.IDCliente = c.IDCliente
+    JOIN Producto p ON v.IDProducto = p.IDProducto;
+    """
+    execute_query(query) 
 
 
+def crearVistaEquipoGimnasio():
+     query = """
+     CREATE VIEW Vista_Equipos_Gimnasios AS
+     SELECT 
+    e.CodigoEquipo,
+    e.nombre AS NombreEquipo,
+    e.estado AS EstadoEquipo,
+    e.fechaAdquisicion AS FechaAdquisicionEquipo,
+    g.IDGimnasio,
+    g.nombre AS NombreGimnasio,
+    g.direccionExacta AS DireccionGimnasio,
+    g.NumeroTelefono AS TelefonoGimnasio,
+    c.IDCiudad,
+    c.nombre AS NombreCiudad
+    FROM Equipo e
+    JOIN Gimnasio g ON e.CodigoGimnasio = g.IDGimnasio
+    JOIN Ciudad c ON g.IDCiudad = c.IDCiudad;
+     """
+     execute_query(query) 
+
+def CrearCursorGimnasioEquipo():
+    query = """
+    CREATE PROCEDURE cursorGimnasio(
+    IN gimnasio_id char(9)
+    )
+    BEGIN
+    DECLARE done int default 0;
+    DECLARE nombre_equipo_temp varchar(50);
+    DECLARE cursor_gimnasio CURSOR FOR
 
 
+    SELECT nombre FROM Equipo WHERE CodigoGimnasio = gimnasio_id;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    OPEN cursor_gimnasio;
+    gimnasio_loop: LOOP
+    Fetch cursor_gimnasio into nombre_equipo_temp;
+    if done = 1 THEN
+       LEAVE gimnasio_loop;
+    end if;
+    SELECT nombre_equipo_temp;
+   END LOOP;
+
+
+    CLOSE cursor_gimnasio;
+
+    END;
+
+    """
+    execute_query(query) 
+
+
+def LlamarCursorGimnasioEquipo(gimnasio_id):
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+        return  # Salir de la función si hay un error en la conexión
+
+    cursor = cnx.cursor()
+
+    cursor.callproc("cursorGimnasio", (gimnasio_id,))
+
+    for result in cursor.stored_results():
+        rows = result.fetchall()
+        print(f"Filas recuperadas: {len(rows)}")
+        for row in rows:
+            ciudad = row[0]
+            print(f"El gimnasio con ID {gimnasio_id} tiene la máquina de {ciudad}")
+
+    cursor.close()
+    cnx.close()
+
+def CrearCursorContarFuncionarios():
+    query = """
+    CREATE PROCEDURE cursorContarFuncionarios (
+    IN gimnasio_id char(9)
+    )
+    BEGIN
+    DECLARE total INT DEFAULT 0;
+    DECLARE done INT DEFAULT 0;
+    DECLARE vacliente char(9);
+
+
+    DECLARE cursor_funcionarios CURSOR FOR
+    SELECT IDFuncionario FROM trabaja WHERE IDGimnasio = gimnasio_id;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    OPEN cursor_funcionarios;
+    funcionarios_loop: LOOP
+    FETCH cursor_funcionarios INTO vacliente;
+    IF done THEN
+    LEAVE funcionarios_loop;
+    END IF;
+    SET total = total + 1;
+    END LOOP;
+    CLOSE cursor_funcionarios;
+    SELECT total;
+    END 
+
+    """
+    execute_query(query) 
+
+
+def LlamarCursorContarFuncionarios(gimnasio_id):
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+        return  # Salir de la función si hay un error en la conexión
+
+    cursor = cnx.cursor()
+
+    cursor.callproc("cursorContarFuncionarios", (gimnasio_id,))
+     # Recuperar el resultado del procedimiento almacenado
+    for result in cursor.stored_results():
+        for row in result.fetchall():
+            print("Total de funcionarios:", row[0])
+
+    cursor.close()
+    cnx.close()
+
+def CrearCursorContarClientesClase():
+    query = """
+    CREATE PROCEDURE cursorContarClientesClase (
+    IN clase_id char(9)
+    )
+    BEGIN
+    DECLARE total INT DEFAULT 0;
+    DECLARE done INT DEFAULT 0;
+    DECLARE vacliente char(11);
+
+
+    DECLARE cursor_clientes CURSOR FOR
+    SELECT IDCliente FROM inscribirse WHERE IDClase = clase_id;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    OPEN cursor_clientes;
+    clientes_loop: LOOP
+    FETCH cursor_clientes INTO vacliente;
+    IF done THEN
+    LEAVE clientes_loop;
+    END IF;
+    SET total = total + 1;
+    END LOOP;
+    CLOSE cursor_clientes;
+    SELECT total;
+    END 
+
+    """
+    execute_query(query) 
+
+def LlamarCursorContarFuncionarios(clase_id):
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+        return  # Salir de la función si hay un error en la conexión
+
+    cursor = cnx.cursor()
+
+    cursor.callproc("cursorContarClientesClase", (clase_id,))
+     # Recuperar el resultado del procedimiento almacenado
+    for result in cursor.stored_results():
+        for row in result.fetchall():
+            print("Total de clientes:", row[0])
+
+    cursor.close()
+    cnx.close()
 
 def menu():
     print("1. Insertar membresia")
@@ -1217,10 +1493,24 @@ def main():
             deleteInscriptionProc(codigoInscripcion)
         opcion = menu()
     print("Saliendo...")
-main()
+#main()
+
+#CrearCursorGimnasioEquipo()
+#LlamarCursorGimnasioEquipo('G001')
+#CrearCursorContarFuncionarios()
+#LlamarCursorContarFuncionarios('G001')
+#CrearCursorContarClientesClase()
+#LlamarCursorContarFuncionarios('C001')
 
 
-crear_trigger_verificar_stock_before_venta()
+"""crearVistaClaseInstructor()
+crearVistaEquipoGimnasio()
+crearVistaInformacionCliente()
+crearVistaInformacionFuncionarios()
+crearVistaVentaProductos()"""
+
+
+"""crear_trigger_verificar_stock_before_venta()
 crear_trigger_actualizar_stock_after_eliminar_venta()
 crear_trigger_actualizar_stock_after_crear_venta()
 crear_trigger_actualizar_monto_venta_despues_actualizacion()
@@ -1234,4 +1524,4 @@ crear_trigger_eliminar_cliente()
 crear_trigger_eliminar_equipo()
 crear_trigger_actualizar_equipo()
 crear_trigger_insertar_gim()
-crear_trigger_actualizar_gim()
+crear_trigger_actualizar_gim()"""
