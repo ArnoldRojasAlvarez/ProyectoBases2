@@ -10,6 +10,32 @@ config = {
   'raise_on_warnings': True
 }
 
+def watchMembershipProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verMembresias')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
+
 def insertMembershipProc(IDMembresiaParam ,tipoParam ,costoParam, estadoParam):
     try:
         cnx = mysql.connector.connect(**config)
@@ -67,6 +93,31 @@ def deleteMembershipProc(IDMembresiaParam):
         cnx.close()
         print("Membresia eliminada")
    
+def watchClassProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verClases')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
 
 def insertClassProc(IDClase, IDFuncionario, nombre, capacidadMaxima):
     try:
@@ -125,7 +176,33 @@ def deleteclaseProc(IDClase):
         cnx.close()
         print("Clase eliminada")
 
-#def insertClientProc(IDCliente, IDMembresia, nombre, apellidol, apellido2, correoElectronico, NumeroTelefono):
+def watchClientProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verClientes')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
+
+def insertClientProc(IDCliente, IDMembresia, nombre, apellidol, apellido2, correoElectronico, NumeroTelefono):
     try:
         cnx = mysql.connector.connect(**config)
     except mysql.connector.Error as err:
@@ -208,6 +285,31 @@ def insertClientProc(IDCliente, IDMembresia, nombre, apellidol, apellido2, corre
             cursorObject.close()
             cnx.close()
 
+def watchPFProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verTrabajosFuncionario')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
 
 def insertPFProc(IDPuesto, puesto):
     try:
@@ -245,7 +347,7 @@ def updatePFProc(IDPuesto, puesto):
         cnx.commit()
         cursorObject.close()
         cnx.close()
-        print("Puesto actualizado")   
+        print("Puesto actualizado")
 
 def deletePFProc(IDPuesto):
     try:
@@ -266,6 +368,31 @@ def deletePFProc(IDPuesto):
         cnx.close()
         print("Puesto eliminado")
 
+def watchEmployeeProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verFuncionarios')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
     
 def insertEmployeeProc(IDFuncionario,
 puesto ,
@@ -344,6 +471,32 @@ def deletePFProc(IDFuncionario):
         cnx.close()
         print("Funcionario eliminado")
 
+def watchCityProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verCiudades')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
+
 def InsertCiudad(IDCiudad, nombre):
     try:
         cnx = mysql.connector.connect(**config)
@@ -400,6 +553,32 @@ def deleteCityProc(IDCiudad):
         cursorObject.close()
         cnx.close()
         print("Ciudad eliminada")
+
+def watchGymProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verGimnasios')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
 
 def insertGym(IDGimnasio, IDCiudad, nombre, direccionExacta, NumeroTelefono):
     try:
@@ -458,6 +637,32 @@ def deleteGymProc(IDGimnasio):
         cnx.close()
         print("Gimnasio eliminado") 
 
+def watchWorkingProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verTrabajos')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
+
 def insertWorking(IDGimnasio, IDFuncionario):
     try:
         cnx = mysql.connector.connect(**config)
@@ -515,6 +720,32 @@ def deleteWorkingProc(IDGimnasio, IDFuncionario):
         cnx.close()
         print("Funcionario asignado a gimnasio eliminado")
 
+def watchEquipProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verEquipos')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
+
 def insertEquip(CodigoEquipo, CodigoGimnasio, nombre, estado, fechaAdquisicion):
     try:
         cnx = mysql.connector.connect(**config)
@@ -551,7 +782,8 @@ def updateEquipProc(CodigoEquipo, CodigoGimnasio, nombre, estado, fechaAdquisici
         cnx.commit()
         cursorObject.close()
         cnx.close()
-        print("Equipo actualizado") 
+        print("Equipo actualizado")
+
 def deleteEquipProc(CodigoEquipo):
     try:
         cnx = mysql.connector.connect(**config)
@@ -570,6 +802,33 @@ def deleteEquipProc(CodigoEquipo):
         cursorObject.close()
         cnx.close()
         print("Equipo eliminado")
+
+def watchProductProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verProductos')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
+
 def insertProductProc(IDProducto, nombre, descripcion, costo):
     try:
         cnx = mysql.connector.connect(**config)
@@ -588,6 +847,7 @@ def insertProductProc(IDProducto, nombre, descripcion, costo):
         cursorObject.close()
         cnx.close()
         print("Nuevo producto insertado")
+
 def updateProductProc(IDProducto, nombre, descripcion, costo):
     try:
         cnx = mysql.connector.connect(**config)
@@ -624,6 +884,32 @@ def deleteProductProc(IDProducto):
         cursorObject.close()
         cnx.close()
         print("Producto eliminado")
+
+def watchSaleProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verVentas')
+        
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)
 
 def insertSaleProc(NumeroTransaccion, IDCliente, IDProducto, fechaAdquisicion, monto, cantidad):
     try:
@@ -682,7 +968,32 @@ def deleteSaleProc(NumeroTransaccion):
         cnx.close()
         print("Venta eliminada")
 
+def watchInscriptionProc():
+    try:
+        cnx = mysql.connector.connect(**config)
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+            print("Something is wrong with your user name or password")
+        elif err.errno == errorcode.ER_BAD_DB_ERROR:
+            print("Database does not exist")
+        else:
+            print(err)
+    else:
+        cursorObject = cnx.cursor()
+        cursorObject.callproc('verInscripciones')
         
+        sales_data = []
+        
+        for result in cursorObject.stored_results():
+            sales_data.extend(result.fetchall())
+        
+        cursorObject.close()
+        cnx.close()
+        
+        # Mostrar la información en la consola
+        for row in sales_data:
+            print(row)  
+
 def insertInscriptionProc(IDClase, IDCliente):
     try:
         cnx = mysql.connector.connect(**config)
@@ -1299,14 +1610,25 @@ def menu():
     print("34. Insertar inscripción")
     print("35. Actualizar inscripción")
     print("36. Eliminar inscripción")
-    print("37 Salir")
+    print("37. Ver productos")
+    print("38. Ver ventas")
+    print("39. Ver inscripciones")
+    print("40. ver información de funcionarios")
+    print("41. ver información de clientes")
+    print("42. ver clases")
+    print("43. ver ciudades con gimnasios")
+    print("44. ver equipo")
+    print("45. ver información de gimnasios")
+    print("46. ver información de trabajos de los funcionarios")
+    print("47. ver información de los puestos de los funcionarios")
+    print("48 Salir")
 
     opcion = int(input("Seleccione una opción: "))
     return opcion
 
 def main():
     opcion = menu()
-    while opcion != 37:
+    while opcion != 48:
         if opcion == 1:
             IDMembresia = input("Ingrese el ID de la membresia: ")
             tipo = input("Ingrese el tipo de membresia: ")
@@ -1491,6 +1813,28 @@ def main():
         elif opcion == 36:
             codigoInscripcion = str(input("Ingrese el ID de la inscripción a eliminar: "))
             deleteInscriptionProc(codigoInscripcion)
+        elif opcion == 37:
+            watchProductProc()
+        elif opcion == 38:
+            watchSaleProc()
+        elif opcion == 39:
+            watchInscriptionProc()
+        elif opcion == 40:
+            watchEmployeeProc()
+        elif opcion == 41:
+            watchClientProc()
+        elif opcion == 42:
+            watchClassProc()
+        elif opcion == 43:
+            watchCityProc()
+        elif opcion == 44:
+            watchEquipProc()
+        elif opcion == 45:
+            watchGymProc()
+        elif opcion == 46:
+            watchWorkingProc()
+        elif opcion == 47:
+            watchPFProc()
         opcion = menu()
     print("Saliendo...")
 #main()

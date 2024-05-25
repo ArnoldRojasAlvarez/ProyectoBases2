@@ -355,6 +355,20 @@ INNER JOIN gimnasio ON equipo.CodigoGimnasio = gimnasio.IDGimnasio;
 
 
 -- ////////////////////////////////////////////FUNCIONES DEL PROYECTO////////////////////////////////////////////
+
+-- ////////////////////////////////////////////FUNCIONES DEL PROYECTO////////////////////////////////////////////
+--  Membresía función para actualizar datos
+-- Función para actualizar un nuevo registro en la tabla Membresia
+DELIMITER //
+CREATE procedure verMembresias (
+
+)
+BEGIN
+select distinct * from membresia;
+END //		
+DELIMITER ; 
+call verMembresias();
+
 -- 1 Membresía procedimiento para insertar datos
 -- Procedimiento para insertar un nuevo registro en la tabla Membresia
 DELIMITER //
@@ -422,6 +436,20 @@ DELIMITER ;
 
 DELIMITER //
 
+CREATE PROCEDURE verClases (
+
+)
+BEGIN
+	select distinct * from clase;
+END //
+
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
+call verClases();
+
+DELIMITER //
+
 CREATE PROCEDURE InsertarClase (
     IN IDClaseP CHAR(9),
     IN IDFuncionarioP CHAR(11),
@@ -478,6 +506,18 @@ DELIMITER ;
 
 -- ////////////////////////////////////////////FUNCIONES DE LOS CLIENTES////////////////////////////////////////////
 
+DELIMITER //
+
+CREATE PROCEDURE verClientes (
+
+)
+BEGIN
+	select distinct * from cliente;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
+call verClientes();
 
 DELIMITER //
 
@@ -546,6 +586,19 @@ DELIMITER ;
 
 DELIMITER //
 
+CREATE PROCEDURE verPuestosFuncionario (
+
+)
+BEGIN
+	select distinct * from puestoFuncionario;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
+call verPuestosFuncionario();
+
+DELIMITER //
+
 CREATE PROCEDURE InsertarPuestoFuncionario (
     IN IDPuestoP CHAR(11),
     IN puestoP varchar(30)
@@ -595,6 +648,19 @@ DELIMITER ;
 
 
 -- ////////////////////////////////////////////FUNCIONES DE Funcionarios////////////////////////////////////////////
+DELIMITER //
+
+CREATE PROCEDURE verFuncionarios (
+
+)
+BEGIN
+	select distinct * from funcionario;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
+
+
 
 DELIMITER //
 
@@ -665,6 +731,30 @@ DELIMITER ;
 
 
 -- ////////////////////////////////////////////FUNCIONES DE Ciudad////////////////////////////////////////////
+DELIMITER //
+
+CREATE PROCEDURE verCiudades (
+
+)
+BEGIN
+	select distinct * from ciudad;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE InsertarCiudad (
+    IN IDCiudadP CHAR(9),
+    IN nombreP varchar(50)
+)
+BEGIN
+    INSERT INTO Ciudad (IDCiudad, nombre)
+    VALUES (IDCiudadP, nombreP);
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
 
 DELIMITER //
 
@@ -713,6 +803,17 @@ END //
 DELIMITER ;
 
 -- ////////////////////////////////////////////FUNCIONES DE Gimnasio////////////////////////////////////////////
+
+DELIMITER //
+
+CREATE PROCEDURE verGimnasios (
+ 
+)
+BEGIN
+	select distinct * from gimnasio;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
 
 DELIMITER //
 
@@ -769,6 +870,17 @@ END //
 DELIMITER ;
 
 -- ////////////////////////////////////////////FUNCIONES DE Trabaja////////////////////////////////////////////
+DELIMITER //
+
+CREATE PROCEDURE verTrabajos (
+
+)
+BEGIN
+	select distinct * from trabaja;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
 
 DELIMITER //
 
@@ -816,6 +928,17 @@ DELIMITER ;
 
 
 -- ////////////////////////////////////////////FUNCIONES DE Equipo////////////////////////////////////////////
+
+DELIMITER //
+
+CREATE PROCEDURE verEquipos (
+
+)
+BEGIN
+	select distinct * from equipo;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
 
 DELIMITER //
 
@@ -875,6 +998,17 @@ DELIMITER ;
 
 DELIMITER //
 
+CREATE PROCEDURE verProductos (
+
+)
+BEGIN
+	select distinct * from producto;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
+DELIMITER //
+
 CREATE PROCEDURE InsertarProducto (
 	in IDProductoP char(9),
 	in nombreP varchar(50),
@@ -924,6 +1058,18 @@ DELIMITER ;
 
 
 -- ////////////////////////////////////////////FUNCIONES DE VENTA////////////////////////////////////////////
+
+DELIMITER //
+
+CREATE PROCEDURE verVentas (
+
+)
+BEGIN
+	select distinct * from venta;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
 DELIMITER //
 
 CREATE PROCEDURE InsertarVenta (
@@ -940,8 +1086,6 @@ BEGIN
 END //
 -- Reset the delimiter back to the semicolon
 DELIMITER ;
-
-
 
 DELIMITER //
 
@@ -983,6 +1127,17 @@ DELIMITER ;
 
 
 -- ////////////////////////////////////////////FUNCIONES DE VENTA////////////////////////////////////////////
+DELIMITER //
+CREATE PROCEDURE verInscripciones (
+
+)
+BEGIN
+	select distinct * from inscribirse;
+END //
+-- Reset the delimiter back to the semicolon
+DELIMITER ;
+
+
 DELIMITER //
 CREATE PROCEDURE InsertarInscribirse (
 	in IDClaseP char(9),
@@ -1031,5 +1186,25 @@ DELIMITER ;
 ALTER TABLE producto ADD stock int NULL;
 UPDATE Producto set stock = 30;
 
+-- INDICES NO CLÚSTER 
+
+CREATE INDEX idx_NumeroTelefono ON cliente(NumeroTelefono);
+create index idx_Producto on producto(nombre);
+create index idx_VentaFecha on venta(fechaAdquisicion);
+create index idx_ClaseNombre on clase(nombre);
+create index idx_direccionGimnasio on gimnasio(direccionExacta);
+
+
+SELECT * FROM mysql.user;
+
+create user 'superUsuarioProyecto2'@localhost2 identified by '123';
+create user 'normalUsuarioProyecto2'@localhost2 identified by '124';
+create user 'respaldoUsuarioProyecto2'@localhost2 identified by '125';
+
+
+GRANT ALL PRIVILEGES ON proyecto1.* TO 'superUsuarioProyecto2'@'localhost2' WITH GRANT OPTION;
+GRANT SELECT, INSERT, UPDATE, DELETE ON proyecto1.* TO 'normalUsuarioProyecto2'@'localhost2';
+GRANT SELECT, SHOW VIEW, LOCK TABLES ON proyecto1.* TO 'respaldoUsuarioProyecto2'@'localhost2';
+FLUSH PRIVILEGES;
 
 
