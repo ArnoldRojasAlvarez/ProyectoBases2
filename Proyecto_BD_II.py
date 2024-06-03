@@ -35,6 +35,7 @@ def watchMembershipProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
+        return sales_data
 
 def insertMembershipProc(IDMembresiaParam ,tipoParam ,costoParam, estadoParam):
     try:
@@ -118,6 +119,7 @@ def watchClassProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
+    return sales_data
 
 def insertClassProc(IDClase, IDFuncionario, nombre, capacidadMaxima):
     try:
@@ -201,7 +203,7 @@ def watchClientProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
-
+    return sales_data
 def insertClientProc(IDCliente, IDMembresia, nombre, apellidol, apellido2, correoElectronico, NumeroTelefono):
     try:
         cnx = mysql.connector.connect(**config)
@@ -297,7 +299,7 @@ def watchPFProc():
             print(err)
     else:
         cursorObject = cnx.cursor()
-        cursorObject.callproc('verTrabajosFuncionario')
+        cursorObject.callproc('verPuestosFuncionario')
         
         sales_data = []
         
@@ -310,7 +312,7 @@ def watchPFProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
-
+    return sales_data
 def insertPFProc(IDPuesto, puesto):
     try:
         cnx = mysql.connector.connect(**config)
@@ -393,7 +395,7 @@ def watchEmployeeProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
-    
+    return sales_data
 def insertEmployeeProc(IDFuncionario,
 puesto ,
 nombre ,
@@ -496,7 +498,7 @@ def watchCityProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
-
+    return sales_data
 def InsertCiudad(IDCiudad, nombre):
     try:
         cnx = mysql.connector.connect(**config)
@@ -579,7 +581,7 @@ def watchGymProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
-
+    return sales_data
 def insertGym(IDGimnasio, IDCiudad, nombre, direccionExacta, NumeroTelefono):
     try:
         cnx = mysql.connector.connect(**config)
@@ -662,7 +664,7 @@ def watchWorkingProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
-
+    return sales_data
 def insertWorking(IDGimnasio, IDFuncionario):
     try:
         cnx = mysql.connector.connect(**config)
@@ -745,7 +747,7 @@ def watchEquipProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
-
+    return sales_data
 def insertEquip(CodigoEquipo, CodigoGimnasio, nombre, estado, fechaAdquisicion):
     try:
         cnx = mysql.connector.connect(**config)
@@ -828,7 +830,7 @@ def watchProductProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
-
+    return sales_data
 def insertProductProc(IDProducto, nombre, descripcion, costo):
     try:
         cnx = mysql.connector.connect(**config)
@@ -910,7 +912,7 @@ def watchSaleProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)
-
+    return sales_data
 def insertSaleProc(NumeroTransaccion, IDCliente, IDProducto, fechaAdquisicion, monto, cantidad):
     try:
         cnx = mysql.connector.connect(**config)
@@ -993,7 +995,7 @@ def watchInscriptionProc():
         # Mostrar la información en la consola
         for row in sales_data:
             print(row)  
-
+    return sales_data
 def insertInscriptionProc(IDClase, IDCliente):
     try:
         cnx = mysql.connector.connect(**config)
@@ -1837,6 +1839,8 @@ def main():
             watchPFProc()
         opcion = menu()
     print("Saliendo...")
+#llamar la funcion ver membresia
+watchMembershipProc()
 #main()
 
 #CrearCursorGimnasioEquipo()
