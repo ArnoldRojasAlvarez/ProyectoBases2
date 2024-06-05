@@ -1552,6 +1552,7 @@ def CrearCursorContarClientesClase():
     """
     execute_query(query) 
 
+
 def LlamarCursorContarFuncionarios(clase_id):
     try:
         cnx = mysql.connector.connect(**config)
@@ -1840,25 +1841,25 @@ def main():
         opcion = menu()
     print("Saliendo...")
 #llamar la funcion ver membresia
-watchMembershipProc()
+
 #main()
 
-#CrearCursorGimnasioEquipo()
-#LlamarCursorGimnasioEquipo('G001')
-#CrearCursorContarFuncionarios()
-#LlamarCursorContarFuncionarios('G001')
-#CrearCursorContarClientesClase()
-#LlamarCursorContarFuncionarios('C001')
+CrearCursorGimnasioEquipo()
+
+CrearCursorContarFuncionarios()
+
+CrearCursorContarClientesClase()
 
 
-"""crearVistaClaseInstructor()
+
+crearVistaClaseInstructor()
 crearVistaEquipoGimnasio()
 crearVistaInformacionCliente()
 crearVistaInformacionFuncionarios()
-crearVistaVentaProductos()"""
+crearVistaVentaProductos()
 
 
-"""crear_trigger_verificar_stock_before_venta()
+crear_trigger_verificar_stock_before_venta()
 crear_trigger_actualizar_stock_after_eliminar_venta()
 crear_trigger_actualizar_stock_after_crear_venta()
 crear_trigger_actualizar_monto_venta_despues_actualizacion()
@@ -1872,4 +1873,4 @@ crear_trigger_eliminar_cliente()
 crear_trigger_eliminar_equipo()
 crear_trigger_actualizar_equipo()
 crear_trigger_insertar_gim()
-crear_trigger_actualizar_gim()"""
+crear_trigger_actualizar_gim()
